@@ -98,53 +98,66 @@ export function BudgetPanel({ items }: BudgetProps) {
   const total = items.reduce((sum, item) => sum + item.value, 0);
   const top = items[0];
   const list = useMemo(() => items.slice(0, 6), [items]);
+  const listWithPct = useMemo(
+    () =>
+      list.map((item) => ({
+        ...item,
+        pct: total > 0 ? (item.value / total) * 100 : 0,
+      })),
+    [list, total],
+  );
 
   return (
-    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_170px]">
-      <div className="space-y-1.5">
-        {list.map((item, idx) => (
-          <div key={item.name} className="flex items-center gap-2 text-xs">
-            <span
-              className="h-2.5 w-2.5 rounded-full"
-              style={{ backgroundColor: COLORS[idx % COLORS.length] }}
-            />
-            <span className="truncate text-[#635F74]">{item.name}</span>
-          </div>
-        ))}
+    <div className="grid h-full grid-cols-1 gap-4 xl:grid-rows-[1fr_auto]">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.25fr_170px]">
+        <div className="space-y-2">
+          {listWithPct.map((item, idx) => (
+            <div key={item.name} className="grid grid-cols-[1fr_auto] items-center gap-2 text-xs">
+              <div className="flex min-w-0 items-center gap-2">
+                <span
+                  className="h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: COLORS[idx % COLORS.length] }}
+                />
+                <span className="truncate text-[#635F74]">{item.name}</span>
+              </div>
+              <span className="font-medium text-[#4A465C]">{item.pct.toFixed(1)}%</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="h-[170px]">
+          {mounted ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={items}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={48}
+                  outerRadius={74}
+                  paddingAngle={3}
+                >
+                  {items.map((item, idx) => (
+                    <Cell key={item.name} fill={COLORS[idx % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value: unknown) => formatUsd(Number(value ?? 0))} />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-full animate-pulse rounded-full bg-[#F0EDFA]" />
+          )}
+        </div>
       </div>
 
-      <div className="h-[150px]">
-        {mounted ? (
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={items}
-                dataKey="value"
-                nameKey="name"
-                innerRadius={44}
-                outerRadius={68}
-                paddingAngle={3}
-              >
-                {items.map((item, idx) => (
-                  <Cell key={item.name} fill={COLORS[idx % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip formatter={(value: unknown) => formatUsd(Number(value ?? 0))} />
-            </PieChart>
-          </ResponsiveContainer>
-        ) : (
-          <div className="h-full animate-pulse rounded-full bg-[#F0EDFA]" />
-        )}
-      </div>
-
-      <div className="xl:col-span-2">
-        <p className="text-xs text-[#9A96AB]">Total for month</p>
+      <div className="border-t border-[#ECEAF4] pt-3">
+        <p className="text-xs text-[#9A96AB]">Total model cost</p>
         <p className="text-3xl font-semibold tracking-tight text-[#222031]">
           {formatUsd(total)}
         </p>
         {top ? (
           <p className="text-xs text-[#6F6A84]">
-            Top category: <span className="font-medium">{top.name}</span>
+            Top model: <span className="font-medium">{top.name}</span>
           </p>
         ) : null}
       </div>

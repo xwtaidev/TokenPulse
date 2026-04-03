@@ -49,7 +49,7 @@ export function TokenTrendCard({ points }: TokenTrendCardProps) {
     () => false,
   );
   const [chartType, setChartType] = useState<ChartOption>("bar");
-  const [range, setRange] = useState<RangeOption>(30);
+  const [range, setRange] = useState<RangeOption>(90);
 
   const rangeOptions: RangeOption[] = [7, 30, 90, 180];
 

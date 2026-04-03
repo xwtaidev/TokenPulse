@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Codex Token Finance Dashboard",
-  description: "Daily model token usage and USD cost analytics.",
+  title: "TokenPulse",
+  description: "TokenPulse - model token usage and USD analytics dashboard.",
 };
 
 export default function RootLayout({

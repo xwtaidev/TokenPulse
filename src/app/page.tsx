@@ -3,10 +3,10 @@ import {
   CalendarBlank,
   CalendarCheck,
   CalendarDots,
+  ChartDonut,
   CirclesFour,
   Database,
   GithubLogo,
-  HouseLine,
   Moon,
   Sparkle,
   SunDim,
@@ -25,14 +25,12 @@ import { TokenTrendCard } from "@/components/dashboard/token-trend-card";
 import {
   aggregateByModel,
   loadDashboardData,
-  toDetailRows,
 } from "@/lib/dashboard-data";
-import { formatUsd } from "@/lib/formatters";
+import { formatInteger, formatUsd } from "@/lib/formatters";
 
 export default async function Home() {
   const data = await loadDashboardData();
   const modelTotals = aggregateByModel(data.daily);
-  const detailRows = toDetailRows(data.daily).slice(0, 8);
 
   const latestRecord = data.daily[data.daily.length - 1];
   const latestDate = latestRecord ? new Date(`${latestRecord.date}T00:00:00`) : null;
@@ -128,18 +126,16 @@ export default async function Home() {
     value: item.total_cost_usd,
   }));
 
-  const transactions = detailRows.map((row, idx) => ({
-    date: row.date,
-    amount: row.total_cost_usd,
-    payment: idx % 3 === 0 ? "YouTube" : idx % 3 === 1 ? "Reserved" : "Yaposhka",
-    method: idx % 2 === 0 ? "VISA **3254" : "Mastercard **2154",
-    category:
-      idx % 3 === 0
-        ? "Subscription"
-        : idx % 3 === 1
-          ? "Shopping"
-          : "Cafe & Restaurants",
-  }));
+  const topTokenDays = [...data.daily]
+    .sort((a, b) => b.total_tokens - a.total_tokens)
+    .slice(0, 8)
+    .map((day) => ({
+      date: day.date,
+      totalTokens: day.total_tokens,
+      inputTokens: day.input_tokens,
+      outputTokens: day.output_tokens,
+      costUsd: day.total_cost_usd,
+    }));
 
   const formatMillions = (value: number): string => {
     const rounded = Math.round((value / 1_000_000) * 100) / 100;
@@ -148,7 +144,6 @@ export default async function Home() {
       maximumFractionDigits: 2,
     }).format(rounded);
   };
-
   return (
     <div className="h-[100dvh] overflow-hidden bg-[#ECECF1] p-4">
       <div className="grid h-full grid-cols-1 gap-3 xl:grid-cols-[240px_1fr]">
@@ -157,7 +152,7 @@ export default async function Home() {
             <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#151325] text-[#8B77F0]">
               <Sparkle size={18} weight="fill" />
             </div>
-            <p className="text-[30px] font-semibold tracking-tight text-[#262338]">FinSet</p>
+            <p className="text-[30px] font-semibold tracking-tight text-[#262338]">TokenPulse</p>
           </div>
 
           <div className="mt-6">
@@ -178,26 +173,22 @@ export default async function Home() {
         </aside>
 
         <main className="h-full space-y-3 overflow-y-auto rounded-[22px] border border-[#DAD9E2] bg-[#F6F6F9] p-4">
-            <header className="flex flex-wrap items-start justify-between gap-3">
+            <header className="flex flex-wrap items-start justify-between gap-3 px-1 py-1">
               <div>
-                <h1 className="text-[40px] leading-none font-semibold tracking-tight text-[#1F1D2E]">
-                  Welcome back, XuWeiteng!
+                <h1 className="text-[30px] leading-none font-semibold tracking-tight text-[#1F1D2E]">
+                  Dashboard Overview
                 </h1>
-                <p className="mt-1 text-sm text-[#9490A4]">
-                  It is the best time to manage your finances
-                </p>
+                <p className="mt-1 text-sm text-[#7F7A90]">Welcome back, XuWeiteng</p>
               </div>
 
-              <div className="space-y-3">
-                <div className="flex items-center justify-end gap-2">
-                  <div className="flex items-center justify-start gap-2 rounded-full border border-[#DAD9E2] bg-white px-3.5 py-1.5 pr-4">
-                    <div className="grid h-8 w-8 place-items-center rounded-full bg-[#F2EFFB] text-[#7F6CEB]">
-                      <GithubLogo size={18} weight="fill" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-[#2E2B3F]">XuWeiteng</p>
-                      <p className="text-[11px] text-[#9C98AA]">xwtaidev@gmail.com</p>
-                    </div>
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <div className="flex items-center justify-start gap-2 rounded-full border border-[#DAD9E2] bg-white px-3.5 py-1.5 pr-4">
+                  <div className="grid h-8 w-8 place-items-center rounded-full bg-[#F2EFFB] text-[#7F6CEB]">
+                    <GithubLogo size={18} weight="fill" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-[#2E2B3F]">XuWeiteng</p>
+                    <p className="text-[11px] text-[#9C98AA]">xwtaidev@gmail.com</p>
                   </div>
                 </div>
               </div>
@@ -256,44 +247,42 @@ export default async function Home() {
                   inputTokens: item.input_tokens,
                   outputTokens: item.output_tokens,
                   tokens: item.total_tokens,
+                  amountUsd: item.total_cost_usd,
                 }))}
               />
             </section>
 
-            <section className="grid grid-cols-1 gap-3 xl:items-start xl:grid-cols-[1.75fr_1fr]">
-              <article className="h-fit rounded-[22px] border border-[#DCDCE5] bg-white p-4">
+            <section className="grid grid-cols-1 gap-3 xl:items-stretch xl:grid-cols-[1.75fr_1fr]">
+              <article className="flex h-full flex-col rounded-[22px] border border-[#DCDCE5] bg-white p-4">
                 <div className="mb-3 flex items-center justify-between">
-                  <p className="text-[30px] font-semibold text-[#242135]">Recent transactions</p>
+                  <p className="text-[30px] font-semibold text-[#242135]">Top Token Days</p>
                   <div className="flex gap-2">
-                    <button className="rounded-full border border-[#DCDCE5] px-3 py-1 text-xs text-[#5F5C72]">
-                      All accounts
-                    </button>
-                    <button className="rounded-full border border-[#DCDCE5] px-3 py-1 text-xs text-[#5F5C72]">
-                      See all
-                    </button>
+                    <span className="rounded-full border border-[#DCDCE5] px-3 py-1 text-xs text-[#5F5C72]">
+                      Top 8 by total tokens
+                    </span>
                   </div>
                 </div>
-                <div className="overflow-auto rounded-2xl border border-[#E6E5EE]">
+                <div className="flex-1 overflow-auto rounded-xl border border-[#E6E5EE]">
                   <Table>
                     <TableHeader className="bg-[#F2EFFB]">
                       <TableRow className="border-[#E3E1ED]">
-                        <TableHead>DATE</TableHead>
-                        <TableHead>AMOUNT</TableHead>
-                        <TableHead>PAYMENT NAME</TableHead>
-                        <TableHead>METHOD</TableHead>
-                        <TableHead>CATEGORY</TableHead>
+                        <TableHead className="text-center">DATE</TableHead>
+                        <TableHead className="text-center">TOTAL TOKENS</TableHead>
+                        <TableHead className="text-center">INPUT TOKENS</TableHead>
+                        <TableHead className="text-center">OUTPUT TOKENS</TableHead>
+                        <TableHead className="text-center">COST (USD)</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {transactions.map((row, idx) => (
+                      {topTokenDays.map((row, idx) => (
                         <TableRow key={`${row.date}-${idx}`} className="border-[#EFEEF4]">
-                          <TableCell>{row.date}</TableCell>
-                          <TableCell className="font-medium text-[#2A273A]">
-                            - {formatUsd(row.amount)}
+                          <TableCell className="text-center">{row.date}</TableCell>
+                          <TableCell className="text-center font-medium text-[#2A273A]">
+                            {formatInteger(row.totalTokens)}
                           </TableCell>
-                          <TableCell>{row.payment}</TableCell>
-                          <TableCell>{row.method}</TableCell>
-                          <TableCell>{row.category}</TableCell>
+                          <TableCell className="text-center">{formatInteger(row.inputTokens)}</TableCell>
+                          <TableCell className="text-center">{formatInteger(row.outputTokens)}</TableCell>
+                          <TableCell className="text-center">{formatUsd(row.costUsd)}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -301,11 +290,11 @@ export default async function Home() {
                 </div>
               </article>
 
-              <article className="h-fit rounded-[22px] border border-[#DCDCE5] bg-white p-4">
+              <article className="flex h-full flex-col rounded-[22px] border border-[#DCDCE5] bg-white p-4">
                 <div className="mb-2 flex items-center justify-between">
-                  <p className="text-[30px] font-semibold text-[#242135]">Budget</p>
+                  <p className="text-[30px] font-semibold text-[#242135]">Model Cost Share</p>
                   <button className="grid h-9 w-9 place-items-center rounded-full border border-[#DDDCE5] text-[#7A778D]">
-                    <HouseLine size={15} className="-rotate-45" />
+                    <ChartDonut size={16} weight="duotone" />
                   </button>
                 </div>
                 <BudgetPanel items={budgetItems} />

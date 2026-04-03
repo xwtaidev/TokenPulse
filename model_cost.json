@@ -1,0 +1,47 @@
+{
+  "summary": {
+    "generated_at": "2026-04-03T08:20:17Z",
+    "timezone_for_usage_aggregation": "Asia/Shanghai",
+    "pricing_unit": "USD per 1M tokens",
+    "model_count": 4,
+    "models_with_usage_count": 3
+  },
+  "models": [
+    {
+      "model": "gpt-5-codex",
+      "pricing": {
+        "input_usd_per_1m_tokens": 1.25,
+        "cached_input_usd_per_1m_tokens": 0.125,
+        "output_usd_per_1m_tokens": 10.0,
+        "source_url": "https://developers.openai.com/api/docs/models/gpt-5-codex"
+      }
+    },
+    {
+      "model": "gpt-5.1-codex-mini",
+      "pricing": {
+        "input_usd_per_1m_tokens": 0.25,
+        "cached_input_usd_per_1m_tokens": 0.025,
+        "output_usd_per_1m_tokens": 2.0,
+        "source_url": "https://developers.openai.com/api/docs/models/gpt-5.1-codex-mini"
+      }
+    },
+    {
+      "model": "gpt-5.3-codex",
+      "pricing": {
+        "input_usd_per_1m_tokens": 1.75,
+        "cached_input_usd_per_1m_tokens": 0.175,
+        "output_usd_per_1m_tokens": 14.0,
+        "source_url": "https://developers.openai.com/api/docs/models/gpt-5.3-codex"
+      }
+    },
+    {
+      "model": "gpt-5.4",
+      "pricing": {
+        "input_usd_per_1m_tokens": 2.5,
+        "cached_input_usd_per_1m_tokens": 0.25,
+        "output_usd_per_1m_tokens": 15.0,
+        "source_url": "https://developers.openai.com/api/docs/models/gpt-5.4"
+      }
+    }
+  ]
+}

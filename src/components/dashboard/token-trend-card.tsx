@@ -78,12 +78,12 @@ export function TokenTrendCard({ points }: TokenTrendCardProps) {
   }, [points, range]);
 
   return (
-    <article className="min-h-[360px] rounded-[22px] border border-[#DCDCE5] bg-white p-4">
+    <article className="min-h-[360px] rounded-[22px] border border-[#DCDCE5] bg-white p-4 dark:border-[#323750] dark:bg-[#1B1E2F]">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-[30px] font-semibold text-[#242135]">Token Trend</p>
+        <p className="text-[30px] font-semibold text-[#242135] dark:text-[#F2F1FF]">Token Trend</p>
         <div className="flex flex-wrap items-center gap-2">
           {chartType === "bar" ? (
-            <div className="mr-1 flex items-center gap-4 text-xs text-[#68647A]">
+            <div className="mr-1 flex items-center gap-4 text-xs text-[#68647A] dark:text-[#B7B3D0]">
               <span className="inline-flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-[#7F6CEB]" />
                 Output (bottom)
@@ -95,14 +95,14 @@ export function TokenTrendCard({ points }: TokenTrendCardProps) {
             </div>
           ) : null}
 
-          <div className="inline-flex rounded-full border border-[#DCDCE5] bg-white p-1">
+          <div className="inline-flex rounded-full border border-[#DCDCE5] bg-white p-1 dark:border-[#444A66] dark:bg-[#232741]">
             <button
               type="button"
               onClick={() => setChartType("bar")}
               className={`rounded-full px-3 py-1 text-xs transition ${
                 chartType === "bar"
                   ? "bg-[#7F6CEB] text-white"
-                  : "text-[#5F5C72] hover:bg-[#F2EFFB] active:scale-[0.98]"
+                  : "text-[#5F5C72] hover:bg-[#F2EFFB] active:scale-[0.98] dark:text-[#C6C3DD] dark:hover:bg-[#323859]"
               }`}
             >
               Bar
@@ -113,14 +113,14 @@ export function TokenTrendCard({ points }: TokenTrendCardProps) {
               className={`rounded-full px-3 py-1 text-xs transition ${
                 chartType === "line"
                   ? "bg-[#7F6CEB] text-white"
-                  : "text-[#5F5C72] hover:bg-[#F2EFFB] active:scale-[0.98]"
+                  : "text-[#5F5C72] hover:bg-[#F2EFFB] active:scale-[0.98] dark:text-[#C6C3DD] dark:hover:bg-[#323859]"
               }`}
             >
               Line
             </button>
           </div>
 
-          <div className="inline-flex rounded-full border border-[#DCDCE5] bg-white p-1">
+          <div className="inline-flex rounded-full border border-[#DCDCE5] bg-white p-1 dark:border-[#444A66] dark:bg-[#232741]">
             {rangeOptions.map((option) => (
               <button
                 key={option}
@@ -129,7 +129,7 @@ export function TokenTrendCard({ points }: TokenTrendCardProps) {
                 className={`rounded-full px-3 py-1 text-xs transition ${
                   range === option
                     ? "bg-[#7F6CEB] text-white"
-                    : "text-[#5F5C72] hover:bg-[#F2EFFB] active:scale-[0.98]"
+                    : "text-[#5F5C72] hover:bg-[#F2EFFB] active:scale-[0.98] dark:text-[#C6C3DD] dark:hover:bg-[#323859]"
                 }`}
               >
                 {option}D
@@ -144,21 +144,22 @@ export function TokenTrendCard({ points }: TokenTrendCardProps) {
           <ResponsiveContainer width="100%" height="100%">
             {chartType === "bar" ? (
               <BarChart data={chartData} barCategoryGap={10} barSize={10}>
-                <CartesianGrid stroke="#ECEAF4" vertical={false} />
+                <CartesianGrid stroke="var(--trend-grid)" vertical={false} />
                 <XAxis
                   dataKey="label"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "#9A96AB", fontSize: 11 }}
+                  tick={{ fill: "var(--trend-tick)", fontSize: 11 }}
                   interval={Math.max(0, Math.floor(range / 8))}
                 />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "#9A96AB", fontSize: 11 }}
+                  tick={{ fill: "var(--trend-tick)", fontSize: 11 }}
                   tickFormatter={formatTokensCompact}
                 />
                 <Tooltip
+                  cursor={{ fill: "var(--trend-hover-band)" }}
                   formatter={(value: unknown, name: unknown) => {
                     const num = Number(value ?? 0);
                     const label = String(name ?? "");
@@ -170,7 +171,9 @@ export function TokenTrendCard({ points }: TokenTrendCardProps) {
                   }}
                   contentStyle={{
                     borderRadius: "12px",
-                    border: "1px solid #E6E3F0",
+                    border: "1px solid var(--trend-tooltip-border)",
+                    backgroundColor: "var(--trend-tooltip-bg)",
+                    color: "var(--trend-tooltip-text)",
                     boxShadow: "0 10px 24px rgba(46,33,89,0.12)",
                   }}
                 />
@@ -178,34 +181,35 @@ export function TokenTrendCard({ points }: TokenTrendCardProps) {
                   dataKey="outputTokens"
                   name="Output"
                   stackId="tokens"
-                  fill="#7F6CEB"
+                  fill="var(--trend-output)"
                   radius={[0, 0, 6, 6]}
                 />
                 <Bar
                   dataKey="inputTokens"
                   name="Input"
                   stackId="tokens"
-                  fill="#A89BEE"
+                  fill="var(--trend-input)"
                   radius={[6, 6, 0, 0]}
                 />
               </BarChart>
             ) : (
               <LineChart data={chartData}>
-                <CartesianGrid stroke="#ECEAF4" vertical={false} />
+                <CartesianGrid stroke="var(--trend-grid)" vertical={false} />
                 <XAxis
                   dataKey="label"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "#9A96AB", fontSize: 11 }}
+                  tick={{ fill: "var(--trend-tick)", fontSize: 11 }}
                   interval={Math.max(0, Math.floor(range / 8))}
                 />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "#9A96AB", fontSize: 11 }}
+                  tick={{ fill: "var(--trend-tick)", fontSize: 11 }}
                   tickFormatter={formatTokensCompact}
                 />
                 <Tooltip
+                  cursor={{ stroke: "var(--trend-hover-line)", strokeWidth: 1, strokeDasharray: "4 4" }}
                   formatter={(value: unknown) => [`${formatInteger(Number(value ?? 0))} tokens`, "Token usage"]}
                   labelFormatter={(label, payload) => {
                     const point = payload?.[0]?.payload as { date?: string } | undefined;
@@ -213,7 +217,9 @@ export function TokenTrendCard({ points }: TokenTrendCardProps) {
                   }}
                   contentStyle={{
                     borderRadius: "12px",
-                    border: "1px solid #E6E3F0",
+                    border: "1px solid var(--trend-tooltip-border)",
+                    backgroundColor: "var(--trend-tooltip-bg)",
+                    color: "var(--trend-tooltip-text)",
                     boxShadow: "0 10px 24px rgba(46,33,89,0.12)",
                   }}
                 />
@@ -221,16 +227,16 @@ export function TokenTrendCard({ points }: TokenTrendCardProps) {
                   type="monotone"
                   dataKey="tokens"
                   name="Token usage"
-                  stroke="#7F6CEB"
+                  stroke="var(--trend-output)"
                   strokeWidth={2}
                   dot={false}
-                  activeDot={{ r: 4, fill: "#7F6CEB" }}
+                  activeDot={{ r: 4, fill: "var(--trend-output)" }}
                 />
               </LineChart>
             )}
           </ResponsiveContainer>
         ) : (
-          <div className="h-full animate-pulse rounded-2xl bg-[#F0EDFA]" />
+          <div className="h-full animate-pulse rounded-2xl bg-[#F0EDFA] dark:bg-[#272B45]" />
         )}
       </div>
     </article>

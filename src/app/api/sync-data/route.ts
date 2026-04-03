@@ -76,12 +76,16 @@ export async function POST() {
 
   const dashboardDataPath = path.join(projectRoot, "data", "dashboard-data.json");
   const excelPath = path.join(projectRoot, "codex-token-usage-by-model.xlsx");
+  const claudeExcelPath = path.join(projectRoot, "claude-token-usage-by-model.xlsx");
   const backupDir = path.join(projectRoot, "data", "backups");
   const codexHome = path.join(os.homedir(), ".codex");
+  const openclawHome = path.join(os.homedir(), ".openclaw");
+  const claudeHome = path.join(os.homedir(), ".claude");
 
   const backups = await Promise.all([
     backupIfExists(dashboardDataPath, backupDir, suffix),
     backupIfExists(excelPath, backupDir, suffix),
+    backupIfExists(claudeExcelPath, backupDir, suffix),
   ]);
 
   const commands: Array<{ cmd: string; args: string[] }> = [
@@ -91,6 +95,10 @@ export async function POST() {
         path.join(projectRoot, "scripts", "sync_dashboard_data.py"),
         "--codex-home",
         codexHome,
+        "--openclaw-home",
+        openclawHome,
+        "--claude-home",
+        claudeHome,
         "--model-cost-json",
         path.join(projectRoot, "model_cost.json"),
         "--output",
@@ -105,6 +113,16 @@ export async function POST() {
         codexHome,
         "--output",
         excelPath,
+      ],
+    },
+    {
+      cmd: "python3",
+      args: [
+        path.join(projectRoot, "sync_codex_token_usage_excel.py"),
+        "--codex-home",
+        claudeHome,
+        "--output",
+        claudeExcelPath,
       ],
     },
   ];
@@ -134,4 +152,3 @@ export async function POST() {
     results,
   });
 }
-

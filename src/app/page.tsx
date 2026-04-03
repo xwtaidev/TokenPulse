@@ -1,4 +1,5 @@
 import type React from "react";
+import Image from "next/image";
 import {
   CalendarBlank,
   CalendarCheck,
@@ -8,7 +9,6 @@ import {
   Database,
   GithubLogo,
   Moon,
-  Sparkle,
   SunDim,
 } from "@phosphor-icons/react/dist/ssr";
 import { Badge } from "@/components/ui/badge";
@@ -149,8 +149,15 @@ export default async function Home() {
       <div className="grid h-full grid-cols-1 gap-3 xl:grid-cols-[240px_1fr]">
         <aside className="flex h-full flex-col rounded-[22px] border border-[#DAD9E2] bg-[#E7E6EE] p-4">
           <div className="flex items-center gap-2">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#151325] text-[#8B77F0]">
-              <Sparkle size={18} weight="fill" />
+            <div className="grid h-9 w-9 place-items-center overflow-hidden rounded-[10px]">
+              <Image
+                src="/tokenpulse-app-icon.png"
+                alt="TokenPulse Icon"
+                width={36}
+                height={36}
+                className="h-full w-full object-cover"
+                priority
+              />
             </div>
             <p className="text-[30px] font-semibold tracking-tight text-[#262338]">TokenPulse</p>
           </div>
@@ -182,7 +189,13 @@ export default async function Home() {
               </div>
 
               <div className="flex flex-wrap items-center justify-end gap-2">
-                <div className="flex items-center justify-start gap-2 rounded-full border border-[#DAD9E2] bg-white px-3.5 py-1.5 pr-4">
+                <a
+                  href="https://github.com/xwtaidev/TokenPulse"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Open TokenPulse repository on GitHub"
+                  className="flex items-center justify-start gap-2 rounded-full border border-[#DAD9E2] bg-white px-3.5 py-1.5 pr-4 transition-colors hover:bg-[#F7F6FB]"
+                >
                   <div className="grid h-8 w-8 place-items-center rounded-full bg-[#F2EFFB] text-[#7F6CEB]">
                     <GithubLogo size={18} weight="fill" />
                   </div>
@@ -190,7 +203,7 @@ export default async function Home() {
                     <p className="text-sm font-medium text-[#2E2B3F]">XuWeiteng</p>
                     <p className="text-[11px] text-[#9C98AA]">xwtaidev@gmail.com</p>
                   </div>
-                </div>
+                </a>
               </div>
             </header>
 

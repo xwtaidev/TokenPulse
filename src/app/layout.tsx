@@ -15,6 +15,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "TokenPulse",
   description: "TokenPulse - model token usage and USD analytics dashboard.",
+  icons: {
+    icon: "/tokenpulse-app-icon.png",
+    shortcut: "/tokenpulse-app-icon.png",
+    apple: "/tokenpulse-app-icon.png",
+  },
 };
 
 export default function RootLayout({

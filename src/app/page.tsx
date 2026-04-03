@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { BudgetPanel } from "@/components/dashboard/finance-panels";
+import { SyncDataButton } from "@/components/sync-data-button";
 import { TokenTrendCard } from "@/components/dashboard/token-trend-card";
 import { ThemeModeSelect } from "@/components/theme-mode-select";
 import {
@@ -180,6 +181,7 @@ export default async function Home() {
 
               <div className="flex flex-wrap items-center justify-end gap-2">
                 <ThemeModeSelect />
+                <SyncDataButton />
                 <a
                   href="https://github.com/xwtaidev/TokenPulse"
                   target="_blank"

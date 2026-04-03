@@ -43,3 +43,4 @@ next-env.d.ts
 # local analytics artifacts (privacy-sensitive, generated from local Codex data)
 data/dashboard-data.json
 codex-token-usage-by-model.xlsx
+data/backups/

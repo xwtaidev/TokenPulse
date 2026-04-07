@@ -12,7 +12,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { formatInteger } from "@/lib/formatters";
+import { formatInteger, formatTokenByUnit, type TokenDisplayUnit } from "@/lib/formatters";
 
 type DailyTokenPoint = {
   date: string;
@@ -23,6 +23,7 @@ type DailyTokenPoint = {
 
 type TokenTrendCardProps = {
   points: DailyTokenPoint[];
+  tokenUnit: TokenDisplayUnit;
 };
 
 type RangeOption = 7 | 30 | 90 | 180;
@@ -35,14 +36,7 @@ function toIsoDate(value: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-function formatTokensCompact(value: number): string {
-  if (value >= 1_000_000) {
-    return `${(value / 1_000_000).toFixed(1)}M`;
-  }
-  return `${Math.round(value / 1000)}K`;
-}
-
-export function TokenTrendCard({ points }: TokenTrendCardProps) {
+export function TokenTrendCard({ points, tokenUnit }: TokenTrendCardProps) {
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -156,14 +150,14 @@ export function TokenTrendCard({ points }: TokenTrendCardProps) {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fill: "var(--trend-tick)", fontSize: 11 }}
-                  tickFormatter={formatTokensCompact}
+                  tickFormatter={(value: number) => formatTokenByUnit(value, tokenUnit, 1)}
                 />
                 <Tooltip
                   cursor={{ fill: "var(--trend-hover-band)" }}
                   formatter={(value: unknown, name: unknown) => {
                     const num = Number(value ?? 0);
                     const label = String(name ?? "");
-                    return [`${formatInteger(num)} tokens`, label];
+                    return [`${formatTokenByUnit(num, tokenUnit)} tokens (${formatInteger(num)})`, label];
                   }}
                   labelFormatter={(label, payload) => {
                     const point = payload?.[0]?.payload as { date?: string } | undefined;
@@ -206,11 +200,14 @@ export function TokenTrendCard({ points }: TokenTrendCardProps) {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fill: "var(--trend-tick)", fontSize: 11 }}
-                  tickFormatter={formatTokensCompact}
+                  tickFormatter={(value: number) => formatTokenByUnit(value, tokenUnit, 1)}
                 />
                 <Tooltip
                   cursor={{ stroke: "var(--trend-hover-line)", strokeWidth: 1, strokeDasharray: "4 4" }}
-                  formatter={(value: unknown) => [`${formatInteger(Number(value ?? 0))} tokens`, "Token usage"]}
+                  formatter={(value: unknown) => {
+                    const num = Number(value ?? 0);
+                    return [`${formatTokenByUnit(num, tokenUnit)} tokens (${formatInteger(num)})`, "Token usage"];
+                  }}
                   labelFormatter={(label, payload) => {
                     const point = payload?.[0]?.payload as { date?: string } | undefined;
                     return point?.date ?? String(label ?? "");

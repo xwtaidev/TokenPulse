@@ -22,13 +22,23 @@ import { BudgetPanel } from "@/components/dashboard/finance-panels";
 import { SyncDataButton } from "@/components/sync-data-button";
 import { TokenTrendCard } from "@/components/dashboard/token-trend-card";
 import { ThemeModeSelect } from "@/components/theme-mode-select";
+import { TokenUnitToggle } from "@/components/token-unit-toggle";
 import {
   aggregateByModel,
   loadDashboardData,
 } from "@/lib/dashboard-data";
-import { formatInteger, formatUsd } from "@/lib/formatters";
+import { formatTokenByUnit, formatUsd, type TokenDisplayUnit } from "@/lib/formatters";
 
-export default async function Home() {
+type HomeProps = {
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export default async function Home({ searchParams }: HomeProps) {
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const rawUnit = resolvedSearchParams.unit;
+  const unitParam = Array.isArray(rawUnit) ? rawUnit[0] : rawUnit;
+  const tokenUnit: TokenDisplayUnit = unitParam === "yi" ? "yi" : "m";
+
   const data = await loadDashboardData();
   const modelTotals = aggregateByModel(data.daily);
 
@@ -68,7 +78,6 @@ export default async function Home() {
     icon: React.ElementType;
     iconBgClass: string;
     iconClass: string;
-    unit: "M";
     shapeClass: string;
   }[] = [
     {
@@ -79,7 +88,6 @@ export default async function Home() {
       icon: Database,
       iconBgClass: "bg-[#F2EFFB] dark:bg-[#2D2850]",
       iconClass: "text-[#7F6CEB] dark:text-[#B7AAFF]",
-      unit: "M",
       shapeClass:
         "absolute -right-[52%] -bottom-[54%] h-[116%] w-[116%] rounded-[58%_42%_52%_48%/54%_46%_58%_42%] bg-[#F2EEFF] opacity-80 dark:bg-[#3B2F6A] dark:opacity-68",
     },
@@ -91,7 +99,6 @@ export default async function Home() {
       icon: CalendarBlank,
       iconBgClass: "bg-[#EEF6FF] dark:bg-[#23385A]",
       iconClass: "text-[#4476D9] dark:text-[#83AEFF]",
-      unit: "M",
       shapeClass:
         "absolute -right-[46%] -top-[56%] h-[112%] w-[108%] rounded-[44%_56%_40%_60%/60%_42%_58%_40%] bg-[#EEF5FF] opacity-80 dark:bg-[#2B436C] dark:opacity-64",
     },
@@ -103,7 +110,6 @@ export default async function Home() {
       icon: CalendarDots,
       iconBgClass: "bg-[#EEFDF5] dark:bg-[#21423C]",
       iconClass: "text-[#2E9155] dark:text-[#7BC8A1]",
-      unit: "M",
       shapeClass:
         "absolute -right-[56%] -bottom-[56%] h-[120%] w-[112%] rounded-[62%_38%_46%_54%/52%_48%_60%_40%] bg-[#ECFAF2] opacity-80 dark:bg-[#2A5A4E] dark:opacity-62",
     },
@@ -115,7 +121,6 @@ export default async function Home() {
       icon: CalendarCheck,
       iconBgClass: "bg-[#FFF5EE] dark:bg-[#4A3528]",
       iconClass: "text-[#CC7A3D] dark:text-[#F1B787]",
-      unit: "M",
       shapeClass:
         "absolute -right-[52%] -top-[52%] h-[116%] w-[112%] rounded-[50%_50%_36%_64%/62%_45%_55%_38%] bg-[#FFF5ED] opacity-80 dark:bg-[#6A4630] dark:opacity-60",
     },
@@ -137,13 +142,6 @@ export default async function Home() {
       costUsd: day.total_cost_usd,
     }));
 
-  const formatMillions = (value: number): string => {
-    const rounded = Math.round((value / 1_000_000) * 100) / 100;
-    return new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-    }).format(rounded);
-  };
   return (
     <div className="h-[100dvh] overflow-hidden bg-[#ECECF1] p-4 dark:bg-[#0E0F16]">
       <div className="grid h-full grid-cols-1 gap-3 xl:grid-cols-[240px_1fr]">
@@ -167,6 +165,10 @@ export default async function Home() {
               <CirclesFour size={16} weight="fill" />
               Dashboard
             </div>
+          </div>
+
+          <div className="mt-auto pt-4">
+            <TokenUnitToggle initialUnit={tokenUnit} />
           </div>
         </aside>
 
@@ -203,7 +205,7 @@ export default async function Home() {
             <section className="grid grid-cols-1 gap-3 xl:grid-cols-4">
               {topMetricCards.map((card) => {
                 const CardIcon = card.icon;
-                const valueText = `${formatMillions(card.tokenValue)}${card.unit}`;
+                const valueText = formatTokenByUnit(card.tokenValue, tokenUnit);
                 return (
                   <article
                     key={card.title}
@@ -255,6 +257,7 @@ export default async function Home() {
                   tokens: item.total_tokens,
                   amountUsd: item.total_cost_usd,
                 }))}
+                tokenUnit={tokenUnit}
               />
             </section>
 
@@ -273,9 +276,15 @@ export default async function Home() {
                     <TableHeader className="bg-[#F2EFFB] dark:bg-[#242841]">
                       <TableRow className="border-[#E3E1ED] dark:border-[#414664]">
                         <TableHead className="text-center">DATE</TableHead>
-                        <TableHead className="text-center">TOTAL TOKENS</TableHead>
-                        <TableHead className="text-center">INPUT TOKENS</TableHead>
-                        <TableHead className="text-center">OUTPUT TOKENS</TableHead>
+                        <TableHead className="text-center">
+                          TOTAL TOKENS ({tokenUnit === "m" ? "M" : "亿"})
+                        </TableHead>
+                        <TableHead className="text-center">
+                          INPUT TOKENS ({tokenUnit === "m" ? "M" : "亿"})
+                        </TableHead>
+                        <TableHead className="text-center">
+                          OUTPUT TOKENS ({tokenUnit === "m" ? "M" : "亿"})
+                        </TableHead>
                         <TableHead className="text-center">COST (USD)</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -284,10 +293,10 @@ export default async function Home() {
                         <TableRow key={`${row.date}-${idx}`} className="border-[#EFEEF4] dark:border-[#393E5A]">
                           <TableCell className="text-center">{row.date}</TableCell>
                           <TableCell className="text-center font-medium text-[#2A273A] dark:text-[#ECEBFF]">
-                            {formatInteger(row.totalTokens)}
+                            {formatTokenByUnit(row.totalTokens, tokenUnit)}
                           </TableCell>
-                          <TableCell className="text-center">{formatInteger(row.inputTokens)}</TableCell>
-                          <TableCell className="text-center">{formatInteger(row.outputTokens)}</TableCell>
+                          <TableCell className="text-center">{formatTokenByUnit(row.inputTokens, tokenUnit)}</TableCell>
+                          <TableCell className="text-center">{formatTokenByUnit(row.outputTokens, tokenUnit)}</TableCell>
                           <TableCell className="text-center">{formatUsd(row.costUsd)}</TableCell>
                         </TableRow>
                       ))}

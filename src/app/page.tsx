@@ -103,7 +103,7 @@ export default async function Home({ searchParams }: HomeProps) {
         "absolute -right-[46%] -top-[56%] h-[112%] w-[108%] rounded-[44%_56%_40%_60%/60%_42%_58%_40%] bg-[#EEF5FF] opacity-80 dark:bg-[#2B436C] dark:opacity-64",
     },
     {
-      title: "仅7天Token使用总量",
+      title: "近7天Token使用总量",
       tokenValue: totalTokensLast7Days,
       usdValue: totalCostLast7Days,
       period: "最近7天",

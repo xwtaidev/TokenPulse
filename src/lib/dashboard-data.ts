@@ -13,9 +13,11 @@ export type DailyModelRecord = {
   input_tokens: number;
   output_tokens: number;
   total_tokens: number;
+  cached_input_tokens?: number;
   input_cost_usd: number;
   output_cost_usd: number;
   total_cost_usd: number;
+  cache_savings_usd?: number;
 };
 
 export type DailyRecord = {
@@ -47,9 +49,11 @@ export type ModelAggregate = {
   input_tokens: number;
   output_tokens: number;
   total_tokens: number;
+  cached_input_tokens: number;
   input_cost_usd: number;
   output_cost_usd: number;
   total_cost_usd: number;
+  cache_savings_usd: number;
 };
 
 const DATA_FILE = path.join(process.cwd(), "data", "dashboard-data.json");
@@ -76,17 +80,21 @@ export function aggregateByModel(records: DailyRecord[]): ModelAggregate[] {
         input_tokens: 0,
         output_tokens: 0,
         total_tokens: 0,
+        cached_input_tokens: 0,
         input_cost_usd: 0,
         output_cost_usd: 0,
         total_cost_usd: 0,
+        cache_savings_usd: 0,
       };
 
       current.input_tokens += row.input_tokens;
       current.output_tokens += row.output_tokens;
       current.total_tokens += row.total_tokens;
+      current.cached_input_tokens += row.cached_input_tokens ?? 0;
       current.input_cost_usd += row.input_cost_usd;
       current.output_cost_usd += row.output_cost_usd;
       current.total_cost_usd += row.total_cost_usd;
+      current.cache_savings_usd += row.cache_savings_usd ?? 0;
       map.set(row.model, current);
     }
   }

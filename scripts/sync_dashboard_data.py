@@ -17,7 +17,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--claude-home", default=str(Path.home() / ".claude"))
     parser.add_argument(
         "--model-cost-json",
-        default=str(Path(__file__).resolve().parents[2] / "model_cost.json"),
+        default=str(Path(__file__).resolve().parents[1] / "model_cost.json"),
     )
     parser.add_argument(
         "--output",
@@ -39,6 +39,31 @@ def parse_dt(value: object) -> datetime | None:
         except Exception:
             return None
     return None
+
+
+def extract_cached_input_tokens(usage: dict) -> int:
+    direct_fields = [
+        usage.get("cached_input_tokens"),
+        usage.get("input_cached_tokens"),
+        usage.get("cache_read_input_tokens"),
+    ]
+    for value in direct_fields:
+        if isinstance(value, int) and value >= 0:
+            return value
+
+    details = usage.get("input_tokens_details")
+    if isinstance(details, dict):
+        value = details.get("cached_tokens")
+        if isinstance(value, int) and value >= 0:
+            return value
+
+    prompt_details = usage.get("prompt_tokens_details")
+    if isinstance(prompt_details, dict):
+        value = prompt_details.get("cached_tokens")
+        if isinstance(value, int) and value >= 0:
+            return value
+
+    return 0
 
 
 def collect_source_files(
@@ -142,7 +167,12 @@ def main() -> None:
     tz = timezone(timedelta(hours=args.tz_offset_hours))
     daily_model: dict[str, dict[str, dict[str, int]]] = defaultdict(
         lambda: defaultdict(
-            lambda: {"input_tokens": 0, "output_tokens": 0, "total_tokens": 0}
+            lambda: {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 0,
+                "cached_input_tokens": 0,
+            }
         )
     )
     claude_usage_seen: set[tuple[str, str]] = set()
@@ -150,7 +180,7 @@ def main() -> None:
     for file_path, source_kind in source_files:
         model_points: list[tuple[datetime, str]] = []
         token_points: list[tuple[datetime, int, int, int]] = []
-        usage_points: list[tuple[datetime, str | None, int, int, int]] = []
+        usage_points: list[tuple[datetime, str | None, int, int, int, int]] = []
 
         for line in file_path.read_text(encoding="utf-8").splitlines():
             try:
@@ -219,6 +249,7 @@ def main() -> None:
                 input_tokens = usage.get("input_tokens", usage.get("input"))
                 output_tokens = usage.get("output_tokens", usage.get("output"))
                 total_tokens = usage.get("total_tokens", usage.get("totalTokens"))
+                cached_input_tokens = extract_cached_input_tokens(usage)
                 if isinstance(input_tokens, int) and isinstance(output_tokens, int):
                     if not isinstance(total_tokens, int):
                         total_tokens = input_tokens + output_tokens
@@ -229,6 +260,7 @@ def main() -> None:
                             input_tokens,
                             output_tokens,
                             total_tokens,
+                            cached_input_tokens,
                         )
                     )
                 continue
@@ -245,6 +277,7 @@ def main() -> None:
                 input_tokens = usage.get("input_tokens", usage.get("input"))
                 output_tokens = usage.get("output_tokens", usage.get("output"))
                 total_tokens = usage.get("total_tokens", usage.get("totalTokens"))
+                cached_input_tokens = extract_cached_input_tokens(usage)
                 if isinstance(input_tokens, int) and isinstance(output_tokens, int):
                     if not isinstance(total_tokens, int):
                         total_tokens = input_tokens + output_tokens
@@ -255,6 +288,7 @@ def main() -> None:
                             input_tokens,
                             output_tokens,
                             total_tokens,
+                            cached_input_tokens,
                         )
                     )
                 continue
@@ -263,6 +297,7 @@ def main() -> None:
             input_tokens = usage.get("input_tokens", usage.get("input"))
             output_tokens = usage.get("output_tokens", usage.get("output"))
             total_tokens = usage.get("total_tokens", usage.get("totalTokens"))
+            cached_input_tokens = extract_cached_input_tokens(usage)
             model = obj.get("model")
 
             # Skip cron summary rows when the source session file exists, to avoid double counting.
@@ -281,6 +316,7 @@ def main() -> None:
                         input_tokens,
                         output_tokens,
                         total_tokens,
+                        cached_input_tokens,
                     )
                 )
                 if isinstance(model, str) and model:
@@ -327,7 +363,7 @@ def main() -> None:
 
                 prev_input, prev_output, prev_total = cur_input, cur_output, cur_total
         else:
-            for dt, model_name, input_tokens, output_tokens, total_tokens in usage_points:
+            for dt, model_name, input_tokens, output_tokens, total_tokens, cached_input_tokens in usage_points:
                 if total_tokens <= 0:
                     continue
                 resolved_model = model_name or advance_model(dt)
@@ -336,6 +372,7 @@ def main() -> None:
                 row["input_tokens"] += input_tokens
                 row["output_tokens"] += output_tokens
                 row["total_tokens"] += total_tokens
+                row["cached_input_tokens"] += min(cached_input_tokens, input_tokens)
                 if source_kind == "claude_jsonl":
                     claude_usage_seen.add((day_key, resolved_model))
 
@@ -374,12 +411,26 @@ def main() -> None:
                 },
             )
             input_cost = (
-                usage["input_tokens"] / 1_000_000 * pricing["input_usd_per_1m_tokens"]
+                (usage["input_tokens"] - min(usage["cached_input_tokens"], usage["input_tokens"]))
+                / 1_000_000
+                * pricing["input_usd_per_1m_tokens"]
+            ) + (
+                min(usage["cached_input_tokens"], usage["input_tokens"])
+                / 1_000_000
+                * pricing["cached_input_usd_per_1m_tokens"]
             )
             output_cost = (
                 usage["output_tokens"] / 1_000_000 * pricing["output_usd_per_1m_tokens"]
             )
             total_cost = input_cost + output_cost
+            cache_savings = (
+                min(usage["cached_input_tokens"], usage["input_tokens"])
+                / 1_000_000
+                * (
+                    pricing["input_usd_per_1m_tokens"]
+                    - pricing["cached_input_usd_per_1m_tokens"]
+                )
+            )
 
             model_rows.append(
                 {
@@ -387,9 +438,11 @@ def main() -> None:
                     "input_tokens": usage["input_tokens"],
                     "output_tokens": usage["output_tokens"],
                     "total_tokens": usage["total_tokens"],
+                    "cached_input_tokens": usage["cached_input_tokens"],
                     "input_cost_usd": round(input_cost, 6),
                     "output_cost_usd": round(output_cost, 6),
                     "total_cost_usd": round(total_cost, 6),
+                    "cache_savings_usd": round(cache_savings, 6),
                 }
             )
             day_input += usage["input_tokens"]

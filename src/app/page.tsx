@@ -176,6 +176,22 @@ export default async function Home({ searchParams }: HomeProps) {
   const costDelta = calcDelta(currentTotals.cost, previousTotals.cost);
 
   const modelTotals = aggregateByModel(filteredDaily);
+  const modelEfficiencyRows = modelTotals.map((item) => {
+    const pricing = data.pricing[item.model];
+    const costPer1m = item.total_tokens > 0 ? (item.total_cost_usd * 1_000_000) / item.total_tokens : 0;
+    const outputInputRatio = item.input_tokens > 0 ? item.output_tokens / item.input_tokens : null;
+    const cachedInputRatio = item.input_tokens > 0 ? (item.cached_input_tokens / item.input_tokens) * 100 : null;
+    const cacheSavingsUsd = item.cache_savings_usd;
+    return {
+      model: item.model,
+      costPer1m,
+      outputInputRatio,
+      cachedInputRatio,
+      cacheSavingsUsd,
+      listedInputPrice: pricing?.input_usd_per_1m_tokens ?? 0,
+      listedCachedInputPrice: pricing?.cached_input_usd_per_1m_tokens ?? 0,
+    };
+  });
 
   const totalTokensAllTime = data.summary.total_tokens;
   const totalCostAllTime = data.summary.total_cost_usd;
@@ -429,6 +445,58 @@ export default async function Home({ searchParams }: HomeProps) {
                     </p>
                   )}
                 </div>
+              </div>
+            </article>
+
+            <article className="rounded-[22px] border border-[#DCDCE5] bg-white p-4 dark:border-[#323750] dark:bg-[#1B1E2F]">
+              <div className="mb-3 flex items-center justify-between">
+                <p className="text-[24px] font-semibold text-[#242135] dark:text-[#F2F1FF]">模型性价比指标</p>
+                <Badge className="rounded-full bg-[#F2EFFB] text-[#5B4AC8] dark:bg-[#2D2850] dark:text-[#C3B8FF]">
+                  Efficiency
+                </Badge>
+              </div>
+              <div className="overflow-auto rounded-xl border border-[#E6E5EE] dark:border-[#3C425E]">
+                <Table>
+                  <TableHeader className="bg-[#F2EFFB] dark:bg-[#242841]">
+                    <TableRow className="border-[#E3E1ED] dark:border-[#414664]">
+                      <TableHead className="text-left">MODEL</TableHead>
+                      <TableHead className="text-center">$/1M TOKENS</TableHead>
+                      <TableHead className="text-center">OUTPUT / INPUT</TableHead>
+                      <TableHead className="text-center">CACHE HIT RATIO</TableHead>
+                      <TableHead className="text-center">CACHE SAVINGS</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {modelEfficiencyRows.length === 0 ? (
+                      <TableRow className="border-[#EFEEF4] dark:border-[#393E5A]">
+                        <TableCell colSpan={5} className="py-8 text-center text-sm text-[#817D93] dark:text-[#B8B4D0]">
+                          当前筛选条件下无模型数据
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      modelEfficiencyRows.slice(0, 10).map((row) => (
+                        <TableRow key={row.model} className="border-[#EFEEF4] dark:border-[#393E5A]">
+                          <TableCell className="font-medium text-[#2A273A] dark:text-[#ECEBFF]">{row.model}</TableCell>
+                          <TableCell className="text-center">{formatUsd(row.costPer1m)}</TableCell>
+                          <TableCell className="text-center">
+                            {row.outputInputRatio === null ? "N/A" : `${row.outputInputRatio.toFixed(3)}x`}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {row.cachedInputRatio === null ? "N/A" : `${row.cachedInputRatio.toFixed(1)}%`}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <span className="font-medium text-[#3A7A56] dark:text-[#8FD8AE]">
+                              {formatUsd(row.cacheSavingsUsd)}
+                            </span>
+                            <span className="ml-1 text-[11px] text-[#8E89A1] dark:text-[#AFAACC]">
+                              (list: {formatUsd(row.listedInputPrice)} → {formatUsd(row.listedCachedInputPrice)})
+                            </span>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
               </div>
             </article>
           </section>

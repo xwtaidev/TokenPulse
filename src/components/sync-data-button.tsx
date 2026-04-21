@@ -24,12 +24,19 @@ export function SyncDataButton() {
     setStatus("idle");
     setStatusText("");
 
+    let timeout: ReturnType<typeof setTimeout> | undefined;
     try {
+      const controller = new AbortController();
+      timeout = setTimeout(() => controller.abort(), 8 * 60 * 1000);
       const response = await fetch("/api/sync-data", {
         method: "POST",
+        signal: controller.signal,
       });
       const payload = (await response.json()) as SyncResponse;
       if (!response.ok || !payload.ok) {
+        if (response.status === 409) {
+          throw new Error(payload.message ?? "已有同步任务正在执行，请稍后重试");
+        }
         throw new Error(payload.message ?? "同步失败");
       }
 
@@ -39,8 +46,15 @@ export function SyncDataButton() {
       router.refresh();
     } catch (error) {
       setStatus("error");
-      setStatusText(error instanceof Error ? error.message : "同步失败");
+      if (error instanceof Error && error.name === "AbortError") {
+        setStatusText("请求超时，请稍后重试");
+      } else {
+        setStatusText(error instanceof Error ? error.message : "同步失败");
+      }
     } finally {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
       setLoading(false);
     }
   };

@@ -129,6 +129,8 @@ export default async function Home({ searchParams }: HomeProps) {
 
   const rawModel = resolvedSearchParams.model;
   const modelParam = Array.isArray(rawModel) ? rawModel[0] : rawModel;
+  const rawFocusDate = resolvedSearchParams.focusDate;
+  const focusDateParam = Array.isArray(rawFocusDate) ? rawFocusDate[0] : rawFocusDate;
 
   const data = await loadDashboardData();
   const selectedModel = modelParam && data.models.includes(modelParam) ? modelParam : "all";
@@ -281,6 +283,11 @@ export default async function Home({ searchParams }: HomeProps) {
       outputTokens: day.output_tokens,
       costUsd: day.total_cost_usd,
     }));
+  const focusedTopDay = focusDateParam ? topTokenDays.find((item) => item.date === focusDateParam) : null;
+  const topTokenDaysForView =
+    focusedTopDay && focusDateParam
+      ? [focusedTopDay, ...topTokenDays.filter((item) => item.date !== focusDateParam)]
+      : topTokenDays;
 
   const rangeLabel =
     selectedRange === "all"
@@ -420,6 +427,11 @@ export default async function Home({ searchParams }: HomeProps) {
                   <span className="rounded-full border border-[#DCDCE5] px-3 py-1 text-xs text-[#5F5C72] dark:border-[#444A66] dark:text-[#C0BDDA]">
                     Top 8 by filtered tokens
                   </span>
+                  {focusDateParam ? (
+                    <span className="rounded-full border border-[#F1D4B3] bg-[#FFF4E8] px-3 py-1 text-xs text-[#A55E1F] dark:border-[#6A4B2E] dark:bg-[#3A2D23] dark:text-[#F0C89A]">
+                      Focus: {focusDateParam}
+                    </span>
+                  ) : null}
                 </div>
               </div>
               <div className="flex-1 overflow-auto rounded-xl border border-[#E6E5EE] dark:border-[#3C425E]">
@@ -440,8 +452,13 @@ export default async function Home({ searchParams }: HomeProps) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {topTokenDays.map((row, idx) => (
-                      <TableRow key={`${row.date}-${idx}`} className="border-[#EFEEF4] dark:border-[#393E5A]">
+                    {topTokenDaysForView.map((row, idx) => (
+                      <TableRow
+                        key={`${row.date}-${idx}`}
+                        className={`border-[#EFEEF4] dark:border-[#393E5A] ${
+                          focusDateParam === row.date ? "bg-[#FFF4E8] dark:bg-[#2E261F]" : ""
+                        }`}
+                      >
                         <TableCell className="text-center">{row.date}</TableCell>
                         <TableCell className="text-center font-medium text-[#2A273A] dark:text-[#ECEBFF]">
                           {formatTokenByUnit(row.totalTokens, tokenUnit)}

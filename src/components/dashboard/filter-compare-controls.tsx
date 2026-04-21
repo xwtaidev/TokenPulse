@@ -1,5 +1,6 @@
 "use client";
 
+import { CalendarBlank, Fire, Funnel } from "@phosphor-icons/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type FilterCompareControlsProps = {
@@ -40,13 +41,16 @@ export function FilterCompareControls({
   };
 
   return (
-    <div className="grid grid-cols-1 gap-2 rounded-[18px] border border-[#DCDCE5] bg-white p-3 dark:border-[#323750] dark:bg-[#1B1E2F] xl:grid-cols-[1fr_1fr_1fr]">
-      <label className="grid gap-1 text-xs text-[#6A667D] dark:text-[#BCB9D5]">
-        时间范围
+    <div className="flex flex-wrap items-center gap-2">
+      <label className="inline-flex h-11 items-center rounded-full border border-[#DAD9E2] bg-white pl-1.5 pr-3 transition-colors hover:bg-[#F7F6FB] dark:border-[#343851] dark:bg-[#1C1F31] dark:hover:bg-[#242841]">
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-[#F2EFFB] text-[#7F6CEB] dark:bg-[#2B2F4A] dark:text-[#B8AEF6]">
+          <CalendarBlank size={16} weight="duotone" />
+        </span>
         <select
+          aria-label="时间范围"
           value={selectedRange}
           onChange={(event) => onChange("range", event.target.value, "90")}
-          className="h-10 rounded-xl border border-[#DAD9E2] bg-white px-3 text-sm text-[#2F2B42] dark:border-[#3A3F5D] dark:bg-[#22263C] dark:text-[#EEEFFF]"
+          className="h-8 bg-transparent pl-2 pr-1 text-sm font-medium text-[#4C4860] outline-none dark:text-[#EAE8FF]"
         >
           <option value="7">最近 7 天</option>
           <option value="30">最近 30 天</option>
@@ -56,12 +60,15 @@ export function FilterCompareControls({
         </select>
       </label>
 
-      <label className="grid gap-1 text-xs text-[#6A667D] dark:text-[#BCB9D5]">
-        模型维度
+      <label className="inline-flex h-11 items-center rounded-full border border-[#DAD9E2] bg-white pl-1.5 pr-3 transition-colors hover:bg-[#F7F6FB] dark:border-[#343851] dark:bg-[#1C1F31] dark:hover:bg-[#242841]">
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-[#F2EFFB] text-[#7F6CEB] dark:bg-[#2B2F4A] dark:text-[#B8AEF6]">
+          <Funnel size={16} weight="duotone" />
+        </span>
         <select
+          aria-label="模型维度"
           value={selectedModel}
           onChange={(event) => onChange("model", event.target.value, "all")}
-          className="h-10 rounded-xl border border-[#DAD9E2] bg-white px-3 text-sm text-[#2F2B42] dark:border-[#3A3F5D] dark:bg-[#22263C] dark:text-[#EEEFFF]"
+          className="h-8 max-w-[200px] bg-transparent pl-2 pr-1 text-sm font-medium text-[#4C4860] outline-none dark:text-[#EAE8FF]"
         >
           <option value="all">全部模型</option>
           {models.map((model) => (
@@ -72,12 +79,15 @@ export function FilterCompareControls({
         </select>
       </label>
 
-      <label className="grid gap-1 text-xs text-[#6A667D] dark:text-[#BCB9D5]">
-        活跃阈值（日总 Tokens）
+      <label className="inline-flex h-11 items-center rounded-full border border-[#DAD9E2] bg-white pl-1.5 pr-3 transition-colors hover:bg-[#F7F6FB] dark:border-[#343851] dark:bg-[#1C1F31] dark:hover:bg-[#242841]">
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-[#F2EFFB] text-[#7F6CEB] dark:bg-[#2B2F4A] dark:text-[#B8AEF6]">
+          <Fire size={16} weight="duotone" />
+        </span>
         <select
+          aria-label="活跃阈值"
           value={selectedMinTokens}
           onChange={(event) => onChange("minTokens", event.target.value, "0")}
-          className="h-10 rounded-xl border border-[#DAD9E2] bg-white px-3 text-sm text-[#2F2B42] dark:border-[#3A3F5D] dark:bg-[#22263C] dark:text-[#EEEFFF]"
+          className="h-8 bg-transparent pl-2 pr-1 text-sm font-medium text-[#4C4860] outline-none dark:text-[#EAE8FF]"
         >
           <option value="0">不限</option>
           <option value="1000000">≥ 1M</option>

@@ -327,6 +327,12 @@ export default async function Home({ searchParams }: HomeProps) {
             </div>
 
             <div className="flex flex-wrap items-center justify-end gap-2">
+              <FilterCompareControls
+                models={data.models}
+                selectedModel={selectedModel}
+                selectedRange={selectedRange}
+                selectedMinTokens={selectedMinTokens}
+              />
               <ThemeModeSelect />
               <SyncDataButton />
               <a
@@ -394,13 +400,6 @@ export default async function Home({ searchParams }: HomeProps) {
           </section>
 
           <section className="grid grid-cols-1 gap-3">
-            <FilterCompareControls
-              models={data.models}
-              selectedModel={selectedModel}
-              selectedRange={selectedRange}
-              selectedMinTokens={selectedMinTokens}
-            />
-
             <article className="rounded-[22px] border border-[#DCDCE5] bg-white p-4 dark:border-[#323750] dark:bg-[#1B1E2F]">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="text-[24px] font-semibold text-[#242135] dark:text-[#F2F1FF]">筛选结果对比</p>

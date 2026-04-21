@@ -327,6 +327,12 @@ export default async function Home({ searchParams }: HomeProps) {
             </div>
 
             <div className="flex flex-wrap items-center justify-end gap-2">
+              <FilterCompareControls
+                models={data.models}
+                selectedModel={selectedModel}
+                selectedRange={selectedRange}
+                selectedMinTokens={selectedMinTokens}
+              />
               <ThemeModeSelect />
               <SyncDataButton />
               <a
@@ -394,13 +400,74 @@ export default async function Home({ searchParams }: HomeProps) {
           </section>
 
           <section className="grid grid-cols-1 gap-3">
-            <FilterCompareControls
-              models={data.models}
-              selectedModel={selectedModel}
-              selectedRange={selectedRange}
-              selectedMinTokens={selectedMinTokens}
+            <TokenTrendCard
+              points={filteredDaily.map((item) => ({
+                date: item.date,
+                inputTokens: item.input_tokens,
+                outputTokens: item.output_tokens,
+                tokens: item.total_tokens,
+                amountUsd: item.total_cost_usd,
+              }))}
+              tokenUnit={tokenUnit}
             />
+          </section>
 
+          <section className="grid grid-cols-1 gap-3 xl:items-stretch xl:grid-cols-[1.75fr_1fr]">
+            <article className="flex h-full flex-col rounded-[22px] border border-[#DCDCE5] bg-white p-4 dark:border-[#323750] dark:bg-[#1B1E2F]">
+              <div className="mb-3 flex items-center justify-between">
+                <p className="text-[30px] font-semibold text-[#242135] dark:text-[#F2F1FF]">Top Token Days</p>
+                <div className="flex gap-2">
+                  <span className="rounded-full border border-[#DCDCE5] px-3 py-1 text-xs text-[#5F5C72] dark:border-[#444A66] dark:text-[#C0BDDA]">
+                    Top 8 by filtered tokens
+                  </span>
+                </div>
+              </div>
+              <div className="flex-1 overflow-auto rounded-xl border border-[#E6E5EE] dark:border-[#3C425E]">
+                <Table>
+                  <TableHeader className="bg-[#F2EFFB] dark:bg-[#242841]">
+                    <TableRow className="border-[#E3E1ED] dark:border-[#414664]">
+                      <TableHead className="text-center">DATE</TableHead>
+                      <TableHead className="text-center">
+                        TOTAL TOKENS ({tokenUnit === "m" ? "M" : "亿"})
+                      </TableHead>
+                      <TableHead className="text-center">
+                        INPUT TOKENS ({tokenUnit === "m" ? "M" : "亿"})
+                      </TableHead>
+                      <TableHead className="text-center">
+                        OUTPUT TOKENS ({tokenUnit === "m" ? "M" : "亿"})
+                      </TableHead>
+                      <TableHead className="text-center">COST (USD)</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {topTokenDays.map((row, idx) => (
+                      <TableRow key={`${row.date}-${idx}`} className="border-[#EFEEF4] dark:border-[#393E5A]">
+                        <TableCell className="text-center">{row.date}</TableCell>
+                        <TableCell className="text-center font-medium text-[#2A273A] dark:text-[#ECEBFF]">
+                          {formatTokenByUnit(row.totalTokens, tokenUnit)}
+                        </TableCell>
+                        <TableCell className="text-center">{formatTokenByUnit(row.inputTokens, tokenUnit)}</TableCell>
+                        <TableCell className="text-center">{formatTokenByUnit(row.outputTokens, tokenUnit)}</TableCell>
+                        <TableCell className="text-center">{formatUsd(row.costUsd)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </article>
+
+            <article className="flex h-full flex-col overflow-hidden rounded-[22px] border border-[#DCDCE5] bg-white p-4 dark:border-[#323750] dark:bg-[#1B1E2F]">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-[30px] font-semibold text-[#242135] dark:text-[#F2F1FF]">Model Cost Share</p>
+                <button className="grid h-9 w-9 place-items-center rounded-full border border-[#DDDCE5] text-[#7A778D] dark:border-[#444A66] dark:text-[#C4C0DF]">
+                  <ChartDonut size={16} weight="duotone" />
+                </button>
+              </div>
+              <BudgetPanel items={budgetItems} />
+            </article>
+          </section>
+
+          <section className="grid grid-cols-1 gap-3 xl:grid-cols-2 xl:items-stretch">
             <article className="rounded-[22px] border border-[#DCDCE5] bg-white p-4 dark:border-[#323750] dark:bg-[#1B1E2F]">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="text-[24px] font-semibold text-[#242135] dark:text-[#F2F1FF]">筛选结果对比</p>
@@ -498,74 +565,6 @@ export default async function Home({ searchParams }: HomeProps) {
                   </TableBody>
                 </Table>
               </div>
-            </article>
-          </section>
-
-          <section className="grid grid-cols-1 gap-3">
-            <TokenTrendCard
-              points={filteredDaily.map((item) => ({
-                date: item.date,
-                inputTokens: item.input_tokens,
-                outputTokens: item.output_tokens,
-                tokens: item.total_tokens,
-                amountUsd: item.total_cost_usd,
-              }))}
-              tokenUnit={tokenUnit}
-            />
-          </section>
-
-          <section className="grid grid-cols-1 gap-3 xl:items-stretch xl:grid-cols-[1.75fr_1fr]">
-            <article className="flex h-full flex-col rounded-[22px] border border-[#DCDCE5] bg-white p-4 dark:border-[#323750] dark:bg-[#1B1E2F]">
-              <div className="mb-3 flex items-center justify-between">
-                <p className="text-[30px] font-semibold text-[#242135] dark:text-[#F2F1FF]">Top Token Days</p>
-                <div className="flex gap-2">
-                  <span className="rounded-full border border-[#DCDCE5] px-3 py-1 text-xs text-[#5F5C72] dark:border-[#444A66] dark:text-[#C0BDDA]">
-                    Top 8 by filtered tokens
-                  </span>
-                </div>
-              </div>
-              <div className="flex-1 overflow-auto rounded-xl border border-[#E6E5EE] dark:border-[#3C425E]">
-                <Table>
-                  <TableHeader className="bg-[#F2EFFB] dark:bg-[#242841]">
-                    <TableRow className="border-[#E3E1ED] dark:border-[#414664]">
-                      <TableHead className="text-center">DATE</TableHead>
-                      <TableHead className="text-center">
-                        TOTAL TOKENS ({tokenUnit === "m" ? "M" : "亿"})
-                      </TableHead>
-                      <TableHead className="text-center">
-                        INPUT TOKENS ({tokenUnit === "m" ? "M" : "亿"})
-                      </TableHead>
-                      <TableHead className="text-center">
-                        OUTPUT TOKENS ({tokenUnit === "m" ? "M" : "亿"})
-                      </TableHead>
-                      <TableHead className="text-center">COST (USD)</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {topTokenDays.map((row, idx) => (
-                      <TableRow key={`${row.date}-${idx}`} className="border-[#EFEEF4] dark:border-[#393E5A]">
-                        <TableCell className="text-center">{row.date}</TableCell>
-                        <TableCell className="text-center font-medium text-[#2A273A] dark:text-[#ECEBFF]">
-                          {formatTokenByUnit(row.totalTokens, tokenUnit)}
-                        </TableCell>
-                        <TableCell className="text-center">{formatTokenByUnit(row.inputTokens, tokenUnit)}</TableCell>
-                        <TableCell className="text-center">{formatTokenByUnit(row.outputTokens, tokenUnit)}</TableCell>
-                        <TableCell className="text-center">{formatUsd(row.costUsd)}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </article>
-
-            <article className="flex h-full flex-col overflow-hidden rounded-[22px] border border-[#DCDCE5] bg-white p-4 dark:border-[#323750] dark:bg-[#1B1E2F]">
-              <div className="mb-2 flex items-center justify-between">
-                <p className="text-[30px] font-semibold text-[#242135] dark:text-[#F2F1FF]">Model Cost Share</p>
-                <button className="grid h-9 w-9 place-items-center rounded-full border border-[#DDDCE5] text-[#7A778D] dark:border-[#444A66] dark:text-[#C4C0DF]">
-                  <ChartDonut size={16} weight="duotone" />
-                </button>
-              </div>
-              <BudgetPanel items={budgetItems} />
             </article>
           </section>
         </main>

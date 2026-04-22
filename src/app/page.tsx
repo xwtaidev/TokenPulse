@@ -300,8 +300,8 @@ export default async function Home({ searchParams }: HomeProps) {
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_12%,rgba(56,121,255,0.16),transparent_30%),radial-gradient(circle_at_86%_6%,rgba(71,193,157,0.14),transparent_28%)]"
       />
-      <div className="relative mx-auto grid h-[calc(100dvh-2rem)] max-w-[1600px] grid-cols-1 gap-4 xl:grid-cols-[252px_1fr]">
-        <aside className="flex h-full flex-col rounded-[26px] border border-[#DAD9E2] bg-[#E7E6EE]/88 p-4 shadow-[0_14px_28px_-20px_rgba(20,26,52,0.34),inset_0_1px_0_rgba(255,255,255,0.42)] backdrop-blur-xl dark:border-[#2C2F43] dark:bg-[#171927]/90 dark:shadow-[0_18px_30px_-20px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.08)]">
+      <div className="relative grid w-full grid-cols-1 gap-4 xl:grid-cols-[252px_1fr]">
+        <aside className="flex min-h-[calc(100dvh-2rem)] flex-col rounded-[26px] border border-[#DAD9E2] bg-[#E7E6EE]/88 p-4 shadow-[0_14px_28px_-20px_rgba(20,26,52,0.34),inset_0_1px_0_rgba(255,255,255,0.42)] backdrop-blur-xl dark:border-[#2C2F43] dark:bg-[#171927]/90 dark:shadow-[0_18px_30px_-20px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.08)]">
           <div className="flex items-center gap-2">
             <div className="grid h-9 w-9 place-items-center overflow-hidden rounded-[10px]">
               <Image
@@ -328,7 +328,7 @@ export default async function Home({ searchParams }: HomeProps) {
           </div>
         </aside>
 
-        <main className="h-full space-y-4 overflow-y-auto overflow-x-hidden rounded-[26px] border border-[#DAD9E2]/95 bg-[#F6F6F9]/92 p-4 shadow-[0_20px_40px_-24px_rgba(18,24,46,0.34),inset_0_1px_0_rgba(255,255,255,0.48)] backdrop-blur-xl dark:border-[#2C2F43] dark:bg-[#141624]/92 dark:shadow-[0_20px_40px_-24px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.06)]">
+        <main className="min-h-[calc(100dvh-2rem)] space-y-4 overflow-x-hidden rounded-[26px] border border-[#DAD9E2]/95 bg-[#F6F6F9]/92 p-4 shadow-[0_20px_40px_-24px_rgba(18,24,46,0.34),inset_0_1px_0_rgba(255,255,255,0.48)] backdrop-blur-xl dark:border-[#2C2F43] dark:bg-[#141624]/92 dark:shadow-[0_20px_40px_-24px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.06)]">
           <header className="flex flex-wrap items-start justify-between gap-3 px-1 py-2">
             <div>
               <h1 className="text-[34px] leading-none font-semibold tracking-tight text-[#1F1D2E] dark:text-[#F2F1FF]">

@@ -295,9 +295,13 @@ export default async function Home({ searchParams }: HomeProps) {
       : `最近 ${RANGE_DAYS_MAP[selectedRange]} 天`;
 
   return (
-    <div className="h-[100dvh] overflow-hidden bg-[#ECECF1] p-4 dark:bg-[#0E0F16]">
-      <div className="grid h-full grid-cols-1 gap-3 xl:grid-cols-[240px_1fr]">
-        <aside className="flex h-full flex-col rounded-[22px] border border-[#DAD9E2] bg-[#E7E6EE] p-4 dark:border-[#2C2F43] dark:bg-[#171927]">
+    <div className="relative min-h-[100dvh] overflow-hidden bg-[#ECECF1] p-4 dark:bg-[#0E0F16]">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_12%,rgba(56,121,255,0.16),transparent_30%),radial-gradient(circle_at_86%_6%,rgba(71,193,157,0.14),transparent_28%)]"
+      />
+      <div className="relative grid w-full grid-cols-1 gap-4">
+        <aside className="flex min-h-[calc(100dvh-2rem)] flex-col rounded-[26px] border border-[#DAD9E2] bg-[#E7E6EE]/88 p-4 shadow-[0_14px_28px_-20px_rgba(20,26,52,0.34),inset_0_1px_0_rgba(255,255,255,0.42)] backdrop-blur-xl xl:fixed xl:top-4 xl:left-4 xl:z-20 xl:w-[252px] xl:h-[calc(100dvh-2rem)] xl:min-h-0 xl:overflow-hidden dark:border-[#2C2F43] dark:bg-[#171927]/90 dark:shadow-[0_18px_30px_-20px_rgba(0,0,0,0.9),inset_0_1px_0_rgba(255,255,255,0.08)]">
           <div className="flex items-center gap-2">
             <div className="grid h-9 w-9 place-items-center overflow-hidden rounded-[10px]">
               <Image
@@ -309,7 +313,7 @@ export default async function Home({ searchParams }: HomeProps) {
                 priority
               />
             </div>
-            <p className="text-[30px] font-semibold tracking-tight text-[#262338] dark:text-[#ECEBFF]">TokenPulse</p>
+            <p className="text-[28px] font-semibold tracking-tight text-[#262338] dark:text-[#ECEBFF]">TokenPulse</p>
           </div>
 
           <div className="mt-6">
@@ -324,13 +328,13 @@ export default async function Home({ searchParams }: HomeProps) {
           </div>
         </aside>
 
-        <main className="h-full space-y-3 overflow-y-auto overflow-x-hidden rounded-[22px] border border-[#DAD9E2] bg-[#F6F6F9] p-4 dark:border-[#2C2F43] dark:bg-[#141624]">
-          <header className="flex flex-wrap items-start justify-between gap-3 px-1 py-1">
+        <main className="min-h-[calc(100dvh-2rem)] space-y-4 overflow-x-hidden rounded-[26px] border border-[#DAD9E2]/95 bg-[#F6F6F9]/92 p-4 shadow-[0_20px_40px_-24px_rgba(18,24,46,0.34),inset_0_1px_0_rgba(255,255,255,0.48)] backdrop-blur-xl xl:ml-[268px] dark:border-[#2C2F43] dark:bg-[#141624]/92 dark:shadow-[0_20px_40px_-24px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.06)]">
+          <header className="flex flex-wrap items-start justify-between gap-3 px-1 py-2">
             <div>
-              <h1 className="text-[30px] leading-none font-semibold tracking-tight text-[#1F1D2E] dark:text-[#F2F1FF]">
+              <h1 className="text-[34px] leading-none font-semibold tracking-tight text-[#1F1D2E] dark:text-[#F2F1FF]">
                 Dashboard Overview
               </h1>
-              <p className="mt-1 text-sm text-[#7F7A90] dark:text-[#A9A6C1]">Welcome back, XuWeiteng</p>
+              <p className="mt-1 text-sm text-[#6F6A84] dark:text-[#A9A6C1]">Welcome back, XuWeiteng</p>
             </div>
 
             <div className="flex flex-wrap items-center justify-end gap-2">
@@ -367,13 +371,13 @@ export default async function Home({ searchParams }: HomeProps) {
               return (
                 <article
                   key={card.title}
-                  className="relative grid min-h-[192px] grid-rows-[54px_auto_auto] overflow-hidden rounded-[22px] border border-[#DCDCE5] bg-white p-4 shadow-[0_8px_18px_-14px_rgba(45,37,92,0.26)] dark:border-[#323750] dark:bg-[#1B1E2F] dark:shadow-[0_14px_30px_-18px_rgba(0,0,0,0.9)]"
+                  className="relative grid min-h-[192px] grid-rows-[54px_auto_auto] overflow-hidden rounded-[24px] border border-[#DCDCE5] bg-white p-4 shadow-[0_18px_30px_-22px_rgba(24,38,76,0.52),inset_0_1px_0_rgba(255,255,255,0.6)] transition-transform duration-300 hover:-translate-y-[2px] dark:border-[#323750] dark:bg-[#1B1E2F] dark:shadow-[0_16px_28px_-18px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.06)]"
                 >
                   <div aria-hidden className={card.shapeClass} />
                   <div className="relative z-10 flex min-h-[54px] items-center justify-between gap-3">
-                    <p className="max-w-[78%] text-[22px] leading-tight font-medium text-[#272438] dark:text-[#EDEBFF]">
-                      {card.title}
-                    </p>
+                      <p className="max-w-[78%] text-[20px] leading-tight font-medium text-[#272438] dark:text-[#EDEBFF]">
+                        {card.title}
+                      </p>
                     <div
                       className={`grid h-9 w-9 shrink-0 place-items-center rounded-full border border-[#DDDCE5] dark:border-[#454964] ${card.iconBgClass}`}
                     >
@@ -381,9 +385,9 @@ export default async function Home({ searchParams }: HomeProps) {
                     </div>
                   </div>
                   <div className="relative z-10 grid grid-cols-[1fr_auto] items-end gap-3">
-                    <p className="text-[40px] leading-none font-semibold tracking-tight text-[#201E31] dark:text-[#FBFAFF]">
-                      {valueText}
-                    </p>
+                      <p className="text-[38px] leading-none font-semibold tracking-tight text-[#201E31] dark:text-[#FBFAFF]">
+                        {valueText}
+                      </p>
                     <p className="justify-self-end text-right text-[24px] leading-none font-semibold tracking-tight text-[#464158] dark:text-[#DAD6F3]">
                       {formatUsd(card.usdValue)}
                     </p>
@@ -422,7 +426,7 @@ export default async function Home({ searchParams }: HomeProps) {
           <section className="grid grid-cols-1 gap-3 xl:items-stretch xl:grid-cols-[1.75fr_1fr]">
             <article className="flex h-full flex-col rounded-[22px] border border-[#DCDCE5] bg-white p-4 dark:border-[#323750] dark:bg-[#1B1E2F]">
               <div className="mb-3 flex items-center justify-between">
-                <p className="text-[30px] font-semibold text-[#242135] dark:text-[#F2F1FF]">Top Token Days</p>
+                <p className="text-[28px] font-semibold text-[#242135] dark:text-[#F2F1FF]">Top Token Days</p>
                 <div className="flex gap-2">
                   <span className="rounded-full border border-[#DCDCE5] px-3 py-1 text-xs text-[#5F5C72] dark:border-[#444A66] dark:text-[#C0BDDA]">
                     Top 8 by filtered tokens
@@ -475,7 +479,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
             <article className="flex h-full flex-col overflow-hidden rounded-[22px] border border-[#DCDCE5] bg-white p-4 dark:border-[#323750] dark:bg-[#1B1E2F]">
               <div className="mb-2 flex items-center justify-between">
-                <p className="text-[30px] font-semibold text-[#242135] dark:text-[#F2F1FF]">Model Cost Share</p>
+                <p className="text-[28px] font-semibold text-[#242135] dark:text-[#F2F1FF]">Model Cost Share</p>
                 <button className="grid h-9 w-9 place-items-center rounded-full border border-[#DDDCE5] text-[#7A778D] dark:border-[#444A66] dark:text-[#C4C0DF]">
                   <ChartDonut size={16} weight="duotone" />
                 </button>
